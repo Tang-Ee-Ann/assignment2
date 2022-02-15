@@ -1,0 +1,45 @@
+<html>
+    <head>
+        <meta charset="utf-8"></meta>
+        <meta name="viewport" content = "width=device-width, initial-scale=1.0"></meta>
+        <title>RPG</title>
+        <style>
+            body {
+                background-color: black;
+            }
+            #wrapper {
+                position: absolute;
+            }
+            #gamecontainer {
+                width: 1536px;
+                height: 838px;
+            }
+            #gamelayer {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                display: none;
+            }
+            #gameresources {
+                display: none;
+            }
+        </style>
+        <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="rpg.js"></script>
+    </head>
+    <div id="gameresources">
+        <scrpt type="application/json" id="template_class_stats">
+            [{"level": 1, "health": 1186, "hit_damage": 300, "hit_chance": 0.7953982378512646, "crit_damage": 400, "crit_chance": 0.16513274595042154, "dodge_chance": 0.16513274595042154}, {"level": 2, "health": 1243, "hit_damage": 300, "hit_chance": 0.8173947541552262, "crit_damage": 400, "crit_chance": 0.17246491805174208, "dodge_chance": 0.17246491805174208}, {"level": 3, "health": 1280, "hit_damage": 300, "hit_chance": 0.8349176781619244, "crit_damage": 400, "crit_chance": 0.17830589272064148, "dodge_chance": 0.17830589272064148}, {"level": 4, "health": 1308, "hit_damage": 300, "hit_chance": 0.8500491010801834, "crit_damage": 400, "crit_chance": 0.18334970036006115, "dodge_chance": 0.18334970036006115}, {"level": 5, "health": 1330, "hit_damage": 300, "hit_chance": 0.8636192448162365, "crit_damage": 400, "crit_chance": 0.18787308160541216, "dodge_chance": 0.18787308160541216}, {"level": 6, "health": 1349, "hit_damage": 300, "hit_chance": 0.8760622947944685, "crit_damage": 400, "crit_chance": 0.1920207649314895, "dodge_chance": 0.1920207649314895}, {"level": 7, "health": 1366, "hit_damage": 300, "hit_chance": 0.8876400680598969, "crit_damage": 400, "crit_chance": 0.1958800226866323, "dodge_chance": 0.1958800226866323}, {"level": 8, "health": 1381, "hit_damage": 300, "hit_chance": 0.8985252487737806, "crit_damage": 400, "crit_chance": 0.19950841625792687, "dodge_chance": 0.19950841625792687}, {"level": 9, "health": 1394, "hit_damage": 300, "hit_chance": 0.9088390300089875, "crit_damage": 400, "crit_chance": 0.20294634333632916, "dodge_chance": 0.20294634333632916}, {"level": 10, "health": 1406, "hit_damage": 300, "hit_chance": 0.9186704470067755, "crit_damage": 400, "crit_chance": 0.20622348233559182, "dodge_chance": 0.20622348233559182}, {"level": 10, "health": 1000, "hit_damage": 0, "hit_chance": 0, "crit_damage": 0, "crit_chance": 0, "dodge_chance": 0}]
+        </scrpt>
+    </div>
+    <body>
+        <div id="wrapper">
+            <div id="gamecontainer">
+                <canvas id="canvas" width="1536px" height="838px" class="gamelayer">
+                </canvas>
+            </div>
+
+        </div>
+    </body>
+</html>

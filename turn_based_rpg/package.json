@@ -1,0 +1,15 @@
+{
+  "name": "turn_based_rpg",
+  "version": "1.0.0",
+  "description": "turn based rpg, inspired by my favourite mmorpg games",
+  "main": "http.js",
+  "scripts": {
+    "test": "node http.js"
+  },
+  "author": "Joshua Ng",
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.88.2",
+    "websocket": "^1.0.34"
+  }
+}
