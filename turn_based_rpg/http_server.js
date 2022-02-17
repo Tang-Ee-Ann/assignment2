@@ -44,8 +44,8 @@ class Class {
         this.statusEffects.push(statusEffectName);
     }
     applySkillEffects(enemy, skillIndex) {
-        var skill = this.class.skills[skillIndex];
-        var attackType = (undefined === skill.attackType) ? this.class.targetType : skill.targetType;
+        var skill = this.class.skills[skillIndex -1];
+        var attackType = (undefined === skill.targetType) ? this.class.targetType : skill.targetType;
         switch (attackType) {
             case 'single': return skill.skillProc(this, enemy);
             case 'single-ally': return skill.skillProc(this);
@@ -99,9 +99,11 @@ class MutliplayerGame {
         this.firstPlayerTurn = Math.random() < 0.5; this.multiplayerRoom_id = generateUniqueMultiplayerRoomId();
         this.player1 = player1; this.player2 = player2;
         this.player1.websocket.send(JSON.stringify({ type : 'multiplayer_join', multiplayerRoom_id : this.multiplayerRoom_id,
-            startFirst : this.firstPlayerTurn }));
+            startFirst : this.firstPlayerTurn, startingInfo : { health : this.player1._class.stats.health, enemy_health :
+                this.player2._class.stats.health } }));
         this.player2.websocket.send(JSON.stringify({ type : 'multiplayer_join',multiplayerRoom_id : this.multiplayerRoom_id, 
-            startFirst : !this.firstPlayerTurn }));
+            startFirst : !this.firstPlayerTurn, startingInfo : { health : this.player2._class.stats.health, enemy_health : 
+                this.player1._class.stats.health } }));
 
         console.log(this.player1._class); console.log(this.player2._class);
 
@@ -113,12 +115,13 @@ class MutliplayerGame {
         this.player1.websocket.close(4001); this.player2.websocket.close(4001);
         for (var i=0; i<multiplayerRooms.length; i++) {
             if (this === multiplayerRooms[i]) delete multiplayerRooms[i];
+            console.log(multiplayerRooms);
         }
     }
 }
 const template_class_stats = JSON.parse(fs.readFileSync('template_class.json'));
 const classes = { "Mage" : { targetType : 'single', skills : [new SkillInfo('Fire Blast', 'single', Mage.fireBlastProc),
-        new SkillInfo('Ice Shard', 'single', Mage.iceShardProc), new SkillInfo('Explosion', 'multi', Mage.explosionProc)] },
+        new SkillInfo('Ice Shard', 'single', Mage.iceShardProc), new SkillInfo('Explosion', 'single', Mage.explosionProc)] },
     "Healer" : [], "Warrior" : [], "Rogue" : [] };
 var server = http.createServer(function(request, response) {
     response.writeHead(200, { 'Content-Type': 'text/plain' }); response.end();
@@ -143,6 +146,7 @@ wsServer.on('request', function(request) {
                     trymatchMaking();
                     break;
                 case 'proc_skill':
+                    console.log(gameMessage); console.log(gameMessage.game_id);
                     if (gameMessage.skill_index > -1 && gameMessage.skill_index < 4)
                         procSkill(websocket, gameMessage.game_id, gameMessage.player_id, gameMessage.skill_index);
                     else websocket.close(4000, 'Invalid websocket behaviour');
@@ -154,6 +158,7 @@ wsServer.on('request', function(request) {
     websocket.on("close", function(reasonCode, description) {
         switch (reasonCode) {
             case 1001:
+            case 4000:
                 removePlayerFromQueneandGame(websocket);
                 break;
         }
@@ -259,8 +264,9 @@ function procSkill(websocket, game_id, player_id, skillindex) {
 }
 function getMultiplayerGameFromID(game_id) {
     for (var i=0;i<multiplayerRooms.length; i++) {
-        if (undefined !== multiplayerRooms[i] && game_id === multiplayerRooms[i].game_id)
+        if (undefined !== multiplayerRooms[i] && game_id == multiplayerRooms[i].multiplayerRoom_id) {
             return multiplayerRooms[i];
+        }
     }
     return undefined;
 }

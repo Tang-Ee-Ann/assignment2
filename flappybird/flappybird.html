@@ -4,27 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content = "width=device-width, initial-scale=1.0">
         <title>Flappy Bird</title>
-        <style>
-            body {
-                background-color: black;
-            }
-            #wrapper {
-                position: absolute;
-            }
-            #gamecontainer {
-                width: 1536px;
-                height: 838px;
-            }
-            #gamelayer {
-                width: 100%;
-                height: 100%;
-                position: absolute;
-                display: none;
-            }
-            #gameresources {
-                display: none;
-            }
-        </style>
+        <link rel="stylesheet" href="flappybird.css" >
         <script src="flappybird.js"></script>
     </head>
     <div id="gameresources">
@@ -41,7 +21,7 @@
     <body>
         <div id="wrapper">
             <div id="gamecontainer">
-                <canvas id="canvas" width="1536px" height="838px"  class="gamelayer">
+                <canvas id="canvas" width="1536" height="838" class="gamelayer">
                 </canvas>
             </div>
 

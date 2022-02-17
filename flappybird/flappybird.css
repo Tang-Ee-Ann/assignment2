@@ -1,0 +1,19 @@
+body {
+    background-color: black;
+}
+#wrapper {
+    position: absolute;
+}
+#gamecontainer {
+    width: 1536px;
+    height: 838px;
+}
+#gamelayer {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    display: none;
+}
+#gameresources {
+    display: none;
+}
