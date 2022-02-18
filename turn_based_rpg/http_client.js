@@ -1,7 +1,35 @@
-var playerid = "61f0c9136aa50d6b00343f48", comesticid = 0;
-function getPlayerId() {
-
+var playerid = undefined;
+var websocket = undefined;
+var gameid = undefined;
+function sendskillIndex(skillIndex) {
+    if (websocket.readyState == WebSocket.OPEN) {
+        console.log('sending skill!');
+        websocket.send(JSON.stringify({ type : 'proc_skill', game_id : gameid, player_id : playerid, skill_index : skillIndex }));
+    }
+    else {
+        console.log('sendSkillIndex: websocket is closed!');
+    }
 }
+checkSignIn('../login.html');
+var settings = {
+    "async": true,
+    "crossDomain": true,
+    "url": "https://ngeeannpolyshop-1312.restdb.io/rest/session?q=" + 
+        JSON.stringify({ session_id : Number(localStorage.getItem('session_id')) }),
+    "method": "GET",
+    "headers": {
+      "content-type": "application/json",
+      "x-apikey": "61ef47c9b12f6e7084f734db",
+      "cache-control": "no-cache"
+    }
+}
+  
+$.ajax(settings).done(function (response) {
+    console.log(response);
+    if (1 == response.length) playerid = response[0].customer_id;
+});
+
+var comesticid = 0;
 function hideScreens() {
     var screens = document.getElementsByClassName('gamelayer');
     console.log(screens);
@@ -52,7 +80,8 @@ function selectCharacter() {
       $.ajax(get_comestic_ids).done(function (response) {
         for (var i=0; i<response.length; i++) {
             button = document.createElement('button');
-            switch (response[i].cosmetic_id) {
+            var j = i +0;
+            switch (response[j].cosmetic_id) {
                 case 1:
                     button.style.background = "url('client_resources/mage-character-1.png')";
                     break;
@@ -67,7 +96,7 @@ function selectCharacter() {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
                 hideScreen('character-selectionscreen'); showScreen('startingscreen');
-                comesticid = response[i].comestic_id;
+                comesticid = response[j].cosmetic_id;
                 character_select.innerHTML = '';
             });
             character_select.appendChild(button);
@@ -206,18 +235,7 @@ function pageInit() {
         showScreen('loadingscreen');
         var serverUrl = "ws://localhost:8080";
 
-        var websocket = new WebSocket(serverUrl);
-        var gameid = undefined;
-
-        function sendskillIndex(skillIndex) {
-            if (websocket.readyState == WebSocket.OPEN) {
-                console.log('sending skill!');
-                websocket.send(JSON.stringify({ type : 'proc_skill', game_id : gameid, player_id : playerid, skill_index : skillIndex }));
-            }
-            else {
-                console.log('sendSkillIndex: websocket is closed!');
-            }
-        }
+        websocket = new WebSocket(serverUrl);
         var websocketcloseEvent = function() {
             hideScreens();
             showScreen('startingscreen');
@@ -236,13 +254,6 @@ function pageInit() {
                     console.log(gameid);
                     setButtonState(!gameMessage.startFirst);
                     hideScreen('loadingscreen'); showScreen('gamescreen'); gameInit(gameMessage.startingInfo);
-                    for (var i=1; i<4; i++) {
-                        var copyi = JSON.parse(JSON.stringify(i));
-                        document.getElementById('skill_' + copyi).addEventListener('click', function(e) {
-                            e.preventDefault();
-                            sendskillIndex(copyi);
-                        }) 
-                    }
                     break;
                 case 'verified':
                     if (gameMessage.result) websocket.send(JSON.stringify({ type: 'verify_acknowledged' }));

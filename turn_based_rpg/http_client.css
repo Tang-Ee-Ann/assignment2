@@ -15,6 +15,13 @@
 #gameresources {
     display: none;
 }
+#game-title {
+    position: absolute;
+    text-align: center;
+    font-size: 70px;
+    width: 100%;
+    top: 15%;
+}
 #multiplayer-button {
     position: absolute;
     width: 250px;
