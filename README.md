@@ -6,5 +6,5 @@ The website also provides a purchasing of an item and a form to fill out for buy
 
 Credits
 ===============================
-Joshua Ng - Gamefication, page linking
+Joshua Ng - Gamefication, page linking  
 Tang Ee Ann - UI & shop maker
