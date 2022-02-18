@@ -4,6 +4,7 @@ The website will contain a Sign up page which will include fields like username 
 The website will offer games as entertainment and chances to win prizes such as discounts and vouchers.  
 The website also provides a purchasing of an item and a form to fill out for buying for the website and get a token to enable the user to play the game.  
 
-#Credits
+Credits
+===============================
 Joshua Ng - Gamefication, page linking
 Tang Ee Ann - UI & shop maker
