@@ -1,3 +1,7 @@
+var playerid = "61f0c9136aa50d6b00343f48", comesticid = 0;
+function getPlayerId() {
+
+}
 function hideScreens() {
     var screens = document.getElementsByClassName('gamelayer');
     console.log(screens);
@@ -19,19 +23,62 @@ function setButtonState(isDisabled) {
 }
 function gobacktoMenu() {
     hideScreens();
-    showScreen('multiplayer-button');
+    showScreen('startingscreen');
 }
-function gobacktoQuene() {
-    document.getElementById('multiplayer-button').dispatchEvent(new MouseEvent(
-        'click', {
-            "view": window,
-            "bubbles": true,
-            "cancelable": false
+function selectCharacter() {
+    hideScreen('startingscreen');
+    var character_select = document.getElementById('character-flex-select');
+    var get_comestic_ids = {
+        "async": true,
+        "crossDomain": true,
+        "url": "https://ngeeannpolyshop-1312.restdb.io/rest/customer-cosmetic?q=" + JSON.stringify({_id : playerid }),
+        "method": "GET",
+        "headers": {
+          "content-type": "application/json",
+          "x-apikey": "61ef47c9b12f6e7084f734db",
+          "cache-control": "no-cache"
         }
-    ))
+      }
+      var button = document.createElement('button');
+      button.classList.add('character-img-flex');
+      button.addEventListener('click', function(e) {
+          e.preventDefault();
+          hideScreen('character-selectionscreen'); showScreen('startingscreen');
+          comesticid = 0;
+          character_select.innerHTML = '';
+      });
+      button.style.background = "url('client_resources/default-mage-character.png')";
+      character_select.appendChild(button)
+      $.ajax(get_comestic_ids).done(function (response) {
+        for (var i=0; i<response.length; i++) {
+            button = document.createElement('button');
+            switch (response[i].cosmetic_id) {
+                case 1:
+                    button.style.background = "url('client_resources/mage-character-1.png')";
+                    break;
+                case 2:
+                    button.style.background = "url('client_resources/mage-character-2.png')";
+                    break;
+                case 3:
+                    button.style.background = "url('client_resources/mage-character-3.png')";
+                    break;
+            }
+            button.classList.add('character-img-flex');
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                hideScreen('character-selectionscreen'); showScreen('startingscreen');
+                comesticid = response[i].comestic_id;
+                character_select.innerHTML = '';
+            });
+            character_select.appendChild(button);
+        }
+        showScreen('character-selectionscreen');
+      });
 }
 function pageInit() {
     var canvas = document.getElementById('gamecanvas'), context = canvas.getContext('2d');
+    const default_mage_character = document.getElementById('mage-character-0'), mage_character_1 = document.getElementById('mage-character-1'), 
+        mage_character_2 = document.getElementById('mage-character-2'), mage_character_3 = document.getElementById('mage-character-3');
     class Vector2F {
         constructor (x, y) {
             this.x = x; this.y = y;
@@ -40,7 +87,7 @@ function pageInit() {
             return new Vector2F(this.x + vec.x, this.y + vec.y);
         }
     }
-    const BASE_HEIGHT = 500, playerselfPosition = new Vector2F(170, BASE_HEIGHT), playerenemyPosition = new Vector2F(canvas.width - 180, BASE_HEIGHT), 
+    const BASE_HEIGHT = 600, playerselfPosition = new Vector2F(170, BASE_HEIGHT), playerenemyPosition = new Vector2F(canvas.width - 180, BASE_HEIGHT), 
         HEALTH_BAR_DIM = { dx : 120, dy : 10 }, HEALTH_DROP_SPEED = 0.003, ENTITY_TO_HEALTH_BAR_OFFSET = new Vector2F(-35, -35),
         ENTITY_DIM = { dx : 50, dy : 100 };
     class Animation {
@@ -108,15 +155,36 @@ function pageInit() {
         }
     }
     var playerself = undefined, playerself_max = undefined, playerenemy = undefined,
-        playerenemy_max = undefined;
+        playerenemy_max = undefined; enemy_comestic_id = undefined;
+
     function gameInit(startingInfo) {
         playerself = startingInfo.health; playerenemy = startingInfo.enemy_health;
-        playerself_max = playerself; playerenemy_max = playerenemy;
+        playerself_max = playerself; playerenemy_max = playerenemy; enemy_comestic_id = startingInfo.enemy_comestic_id;
         context.save(); context.fillStyle = 'grey';
         var playerselfhealthbarpos = playerselfPosition.translate(ENTITY_TO_HEALTH_BAR_OFFSET),
             playerenemyhealthbarpos = playerenemyPosition.translate(ENTITY_TO_HEALTH_BAR_OFFSET);
-        context.fillRect(playerselfPosition.x, playerselfPosition.y, ENTITY_DIM.dx, ENTITY_DIM.dy);
-        context.fillRect(playerenemyPosition.x, playerenemyPosition.y, ENTITY_DIM.dx, ENTITY_DIM.dy);
+            console.log (default_mage_character);
+        function drawPlayer(vectorpos, comestic_id) {
+            switch(comestic_id) {
+                case 0:
+                    context.drawImage(default_mage_character, vectorpos.x, vectorpos.y);
+                    break;
+                case 1:
+                    context.drawImage(mage_character_1, vectorpos.x, vectorpos.y);
+                    break;
+                case 2:
+                    context.drawImage(mage_character_2, vectorpos.x, vectorpos.y);
+                    break;
+                case 3:
+                    context.drawImage(mage_character_3, vectorpos.x, vectorpos.y);
+                    break;
+            }
+        }
+        drawPlayer(playerselfPosition, comesticid);
+        context.save(); context.translate(50, 0); context.scale(-1, 1);
+        drawPlayer( { x: -playerenemyPosition.x, y: playerenemyPosition.y }, enemy_comestic_id);
+        context.restore();
+
         context.fillStyle = 'green';
         context.fillRect(playerselfhealthbarpos.x, playerselfhealthbarpos.y, HEALTH_BAR_DIM.dx, HEALTH_BAR_DIM.dy);
         context.fillRect(playerenemyhealthbarpos.x, playerenemyhealthbarpos.y, HEALTH_BAR_DIM.dx, HEALTH_BAR_DIM.dy);
@@ -131,13 +199,12 @@ function pageInit() {
     }
     
     hideScreens();
-    showScreen('multiplayer-button');
+    showScreen('startingscreen');
     document.getElementById('multiplayer-button').addEventListener('click', function(e) {
         e.preventDefault();
-        hideScreen('multiplayer-button');
+        hideScreen('startingscreen');
         showScreen('loadingscreen');
         var serverUrl = "ws://localhost:8080";
-        playerid = "61f0c9136aa50d6b00343f48";
 
         var websocket = new WebSocket(serverUrl);
         var gameid = undefined;
@@ -151,7 +218,10 @@ function pageInit() {
                 console.log('sendSkillIndex: websocket is closed!');
             }
         }
-
+        var websocketcloseEvent = function() {
+            hideScreens();
+            showScreen('startingscreen');
+        };
         websocket.addEventListener('open', function() {
         console.log('websocket opened.');
         });
@@ -159,7 +229,7 @@ function pageInit() {
             var gameMessage = JSON.parse(message.data);
             switch (gameMessage.type) {
                 case 'verify_player_id':
-                    websocket.send(JSON.stringify({ type: 'verify_player_id', player_id : playerid }));
+                    websocket.send(JSON.stringify({ type: 'verify_player_id', player_id : playerid, comestic_id : comesticid }));
                     break;
                 case 'multiplayer_join':
                     gameid = gameMessage.multiplayerRoom_id;
@@ -177,7 +247,7 @@ function pageInit() {
                 case 'verified':
                     if (gameMessage.result) websocket.send(JSON.stringify({ type: 'verify_acknowledged' }));
                     else {
-                        hideScreen('loadscreening'); showScreen('multiplayer-button');
+                        hideScreen('loadscreening'); showScreen('startingscreen');
                     }
                     break;
                 case 'update_enemy':
@@ -191,24 +261,19 @@ function pageInit() {
                     playerself =  gameMessage.new_health;
                     break;
                 case 'win_status':
+                    if (undefined == gameMessage.win_status) {
+                        hideScreen('gamescreen'); showScreen('startingscreen');
+                        break;
+                    }
+                    websocket.removeEventListener('close', websocketcloseEvent);
                     document.getElementById('endingStatusMessage').textContent = gameMessage.win_status ? 'Victory' : 'Defeat';
                     showScreen('endingscreen');
+                    websocket.send(JSON.stringify({ type : 'win_acknowledged' }));
                     break;
             }
         });
-        websocket.addEventListener('close', function() {
-            hideScreens();
-            showScreen('multiplayer-button');
-        })
+        websocket.addEventListener('close', websocketcloseEvent);
         
     });
 }
-
 window.addEventListener('load', pageInit);
-function testing() {
-    var canvas = document.getElementById('gamecanvas'), context = canvas.getContext('2d');
-    hideScreens();
-    document.getElementById('endingStatusMessage').textContent = 'Victory';
-    //context.fillRect(0, 0, canvas.width, canvas.height);
-}
-//window.addEventListener('load', testing);

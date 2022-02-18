@@ -11,6 +11,12 @@
         <script src="http_client.js"></script>
     <head>
     <body>
+        <div id="gameresources">
+            <img src="client_resources/default-mage-character.png" id="mage-character-0">
+            <img src="client_resources/mage-character-1.png" id="mage-character-1">
+            <img src="client_resources/mage-character-2.png" id="mage-character-2">
+            <img src="client_resources/mage-character-3.png" id="mage-character-3">
+        </div>
         <div id="wrapper">
             <div id="gamecontainer">
                 <div id='gamescreen' class="gamelayer">
@@ -21,15 +27,21 @@
                         <button class="skill" id="skill_3"></button>
                     </div>
                 </div>
-                <div id="multiplayer-button" class="gamelayer">Click To Join Multiplayer Quene</div>
+                <div id="startingscreen" class="gamelayer">
+                    <button id="multiplayer-button"></button>
+                    <button id="change-character" onclick="selectCharacter()"></button>
+                </div>
                 <lottie-player id="loadingscreen" class="gamelayer" src="https://assets1.lottiefiles.com/datafiles/bEYvzB8QfV3EM9a/data.json" background="transparent" speed="1" style="width: 600px; height: 600px;" loop autoplay>
                 </lottie-player>
                 <div id="endingscreen" class="gamelayer">
-                    <div id="endingStatusMessage"></div>
+                    <p id="endingStatusMessage"></p>
                     <div id="menu">
-                        <button class="menu-button" onclick="gobacktoMenu()">cum</button>
-                        <button class="menu-button" onclick="gobacktoQuene()">cum2</button>
+                        <button id='gobacktoMenu' class="menu-button" onclick="gobacktoMenu()"></button>
                     </div>
+                </div>
+                <div id="character-selectionscreen" class="gamelayer">
+                    <p id="select-character-title">Select character</p>
+                    <div id="character-flex-select"></div>
                 </div>
             </div>
         </div>

@@ -2,7 +2,7 @@
     position: absolute;
 }
 #gamecontainer {
-    background: url('../flappybird/cloudbackground.png');
+    background: url('client_resources/wizard-battle-background.png');
     width: 1536px;
     height: 838px;
 }
@@ -12,17 +12,45 @@
     position: absolute;
     display: none;
 }
+#gameresources {
+    display: none;
+}
 #multiplayer-button {
+    position: absolute;
     width: 250px;
     height: 80px;
-    background-color: black;
+    background: url('client_resources/join-quene-button.png');
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    text-align: center;
+    border: none;
 }
-#gameresources {
-    display: none;
+#multiplayer-button:hover {
+    background: url('client_resources/join-quene-hover.png');
+}
+#multiplayer-button:active {
+    background: url('client_resources/join-quene-press.png');
+}
+#change-character {
+    position: absolute;
+    width: 250px;
+    height: 80px;
+    background: url('client_resources/change-character-button.png');
+    top: 75%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: none;
+}
+#change_character:hover {
+    background: url('client_resources/change-character-hover.png');
+}
+#change_character:active {
+    background: url('client_resources/change-character-press.png');
+}
+#loadingscreen {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 #endingscreen {
     background-color:  rgba(0, 0, 0, 0.3);
@@ -33,50 +61,90 @@
     position: absolute;
     width: 100%;
     height: 200px;
-    background-color: white;
     bottom: 0px;
 }
 .skill {
     width: 200px;
     height: 200px;
-    background-color: orange;
     border : none;
+}
+#skill_1 {
+    background: url('client_resources/fireblast-skill.png');
+}
+#skill_1:hover {
+    background: url('client_resources/fireblast-skill-hover.png');
+}
+#skill_1:disabled {
+    background: url('client_resources/fireblast-skill-disabled.png');
+}
+#skill_2 {
+    background: url('client_resources/iceshard-skill.png');
+}
+#skill_2:hover {
+    background: url('client_resources/iceshard-skill-hover.png');
+}
+#skill_2:disabled {
+    background: url('client_resources/iceshard-skill-disabled.png');
+}
+#skill_3 {
+    background: url('client_resources/explosion-skill.png');
+}
+#skill_3:hover {
+    background: url('client_resources/explosion-skill-hover.png');
+}
+#skill_3:disabled {
+    background: url('client_resources/explosion-skill-disabled.png');
 }
 #endingStatusMessage {
     position: absolute;
-    background-color: white;
     text-align: center;
     font-size: 70px;
-    width: 1500px;
+    width: 100%;
     top: 15%;
-}
-#returntoMenu {
-    position: absolute;
-    background-color: white;
-    width: 250px;
-    height: 80px;
-    top: 30%;
-}
-#queneAgain {
-    position: absolute;
-    background-color: white;
-    width: 250px;
-    height: 80px;
-    top: 75%;
 }
 #menu {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     position: absolute;
-    background-color: white;
     text-align: center;
     font-size: 70px;
-    width: 1500px;
-    top: 30%;
+    width: 100%;
+    top: 45%;
 }
 .menu-button {
     width: 250px;
     height: 80px;
-    background-color: orange;
     border : none;
+}
+#gobacktoMenu {
+    background: url('client_resources/back-to-menu-button.png');
+    position: absolute;
+    width: 250px;
+    height: 80px;
+}
+#gobacktoMenu:hover {
+    background: url('client_resources/back-to-menu-hover.png');
+}
+#gobacktoMenu:active {
+    background: url('client_resources/back-to-menu-press.png');
+}
+#select-character-title {
+    position: absolute;
+    text-align: center;
+    font-size: 70px;
+    width: 100%;
+    top: 15%;
+}
+#character-flex-select {
+    position: absolute;
+    width: 100%;
+    top: 35%;
+    height: 100px;
+    display: flex;
+    justify-content: space-around;
+}
+.character-img-flex {
+    width: 50px;
+    height: 100px;
+    border: none;
 }

@@ -1,4 +1,8 @@
 const { throws } = require('assert');
+const { createCanvas, loadImage } = require('canvas');
+const { generateKey } = require('crypto');
+const canvas = createCanvas(150, 300), ctx = canvas.getContext('2d');
+
 
 const http = require('http'), fs = require('fs'), WebSocketServer = require('websocket').server,
     request = require('request');
@@ -17,9 +21,9 @@ class SkillInfo {
     }
 }
 class Player {
-    constructor(player_id, websocket, _class, level) {
+    constructor(player_id, websocket, level, comestic_id) {
         this.playerId = player_id; this.websocket = websocket;
-        this._class = new Class(_class, level);
+        this._class = new Class('Mage', level); this.comesticId = comestic_id;
     }
 }
 class Class {
@@ -100,29 +104,27 @@ class MutliplayerGame {
         this.player1 = player1; this.player2 = player2;
         this.player1.websocket.send(JSON.stringify({ type : 'multiplayer_join', multiplayerRoom_id : this.multiplayerRoom_id,
             startFirst : this.firstPlayerTurn, startingInfo : { health : this.player1._class.stats.health, enemy_health :
-                this.player2._class.stats.health } }));
+                this.player2._class.stats.health, enemy_comestic_id : this.player2.comesticId } }));
         this.player2.websocket.send(JSON.stringify({ type : 'multiplayer_join',multiplayerRoom_id : this.multiplayerRoom_id, 
             startFirst : !this.firstPlayerTurn, startingInfo : { health : this.player2._class.stats.health, enemy_health : 
-                this.player1._class.stats.health } }));
-
-        console.log(this.player1._class); console.log(this.player2._class);
+                this.player1._class.stats.health, enemy_comestic_id : this.player1.comesticId } }));
 
         this.firstwinStatus = undefined;
     }
     closeMultiplayerGame() {
         this.player1.websocket.send(JSON.stringify({ type : 'win_status', win_status : this.firstwinStatus }))
         this.player2.websocket.send(JSON.stringify({ type : 'win_status', win_status : !this.firstwinStatus }))
-        this.player1.websocket.close(4001); this.player2.websocket.close(4001);
         for (var i=0; i<multiplayerRooms.length; i++) {
-            if (this === multiplayerRooms[i]) delete multiplayerRooms[i];
-            console.log(multiplayerRooms);
+            if (this == multiplayerRooms[i]) delete multiplayerRooms[i];
         }
+        console.log(multiplayerRooms);
+        console.log(playersWaiting);
     }
 }
 const template_class_stats = JSON.parse(fs.readFileSync('template_class.json'));
 const classes = { "Mage" : { targetType : 'single', skills : [new SkillInfo('Fire Blast', 'single', Mage.fireBlastProc),
         new SkillInfo('Ice Shard', 'single', Mage.iceShardProc), new SkillInfo('Explosion', 'single', Mage.explosionProc)] },
-    "Healer" : [], "Warrior" : [], "Rogue" : [] };
+    };
 var server = http.createServer(function(request, response) {
     response.writeHead(200, { 'Content-Type': 'text/plain' }); response.end();
 });
@@ -132,7 +134,6 @@ console.log('Server has started listening on port 8080');
 var wsServer = new WebSocketServer({httpServer: server});
 console.log(wsServer);
 
-//  game_id, player_id, skiLL_index
 wsServer.on('request', function(request) {
     var websocket = request.accept();
     websocket.on("message", function(message) {
@@ -140,7 +141,7 @@ wsServer.on('request', function(request) {
             var gameMessage = JSON.parse(message.utf8Data);
             switch (gameMessage.type) {
                 case 'verify_player_id' :
-                    searchDatabaseforvalidPlayerID(websocket, gameMessage.player_id);
+                    searchDatabaseforvalidPlayerID(websocket, gameMessage.player_id, gameMessage.comestic_id);
                     break;
                 case 'verify_acknowledged':
                     trymatchMaking();
@@ -150,6 +151,12 @@ wsServer.on('request', function(request) {
                     if (gameMessage.skill_index > -1 && gameMessage.skill_index < 4)
                         procSkill(websocket, gameMessage.game_id, gameMessage.player_id, gameMessage.skill_index);
                     else websocket.close(4000, 'Invalid websocket behaviour');
+                    break;
+                case 'win_acknowledged':
+                    websocket.close(4001, 'win acknowledged by websocket');
+                    break;
+                default:
+                    websocket.close(4000, 'Invalid websocket behaviour'); 
                     break;
             }
         }
@@ -175,7 +182,7 @@ function generateUniqueMultiplayerRoomId() {
     do {
         multiplayer_room_id = randBigInt();
         for (var i=0; i < multiplayerRooms.length; i++) {
-            if (multiplayerRooms[i].multiplayerRoom_id == multiplayer_room_id)
+            if (undefined != multiplayerRooms[i] && multiplayerRooms[i].multiplayerRoom_id == multiplayer_room_id)
                 continue;
         }
         isUnique = true;
@@ -186,18 +193,18 @@ function removePlayerFromQueneandGame(websocket) {
     for (var i=0; i < playersWaiting.length;i++) {
         if (undefined !== playersWaiting[i] && playersWaiting[i].websocket == websocket) {
             console.log('player found in waiting quene! removing from quene...');
-            delete playerWaiting[i]; return;
+            delete playersWaiting[i]; return;
         }
     }
     for (var i=0;i < multiplayerRooms.length; i++) {
-        if (undefined !== playersWaiting[i] && multiplayerRooms[i].player1.websocket == websocket
+        if (undefined !== multiplayerRooms[i] && multiplayerRooms[i].player1.websocket == websocket
             || multiplayerRooms[i].player2.websocket) {
             console.log('player found in multiplayer room! removing and closing game...');
             multiplayerRooms[i].closeMultiplayerGame(); return;
         }
     }
 }
-function searchDatabaseforvalidPlayerID(websocket, player_id) {
+function searchDatabaseforvalidPlayerID(websocket, player_id, comestic_id) {
     var get_ids_request = JSON.parse(options_template);
     get_ids_request.url += "?q=" + JSON.stringify({ "_id" : player_id})
     request(get_ids_request, function(error, response, body) {
@@ -207,15 +214,18 @@ function searchDatabaseforvalidPlayerID(websocket, player_id) {
             websocket.close();
         }
         else {
-            addnewWaitingPlayer(new Player(player_id, websocket,
-                body[0].Class, body[0].Level));
+            addnewWaitingPlayer(new Player(player_id, websocket, body[0].Level, comestic_id));
             websocket.send(JSON.stringify({ type : 'verified', result : true }));
         }
     });
 }
 function addnewWaitingPlayer(player) {
     for (var i=0; i<playersWaiting.length; i++) {
-        if (undefined === playersWaiting[i]) playersWaiting[i] = player;
+        if (undefined === playersWaiting[i]) {
+            playersWaiting[i] = player;
+            console.log(playersWaiting);
+            return;
+        }
     }
     playersWaiting.push(player);
     console.log(playersWaiting);
@@ -224,9 +234,9 @@ function trymatchMaking() {
     var player1 = undefined, player2 = undefined;
     for (var i=0; i<playersWaiting.length; i++) {
         if (undefined !== playersWaiting[i]) {
-            if (undefined === player1) player1 = i;
-            else if (undefined === player2) player2 = i;
-            else return;
+            if (undefined == player1) player1 = i;
+            else if (undefined == player2) player2 = i;
+            else break;
         }
     }
     console.log(player1); console.log(player2);
